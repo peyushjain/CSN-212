@@ -1,1 +1,51 @@
+#include<bits/stdc++.h>
+using namespace std;
+const int max_n=30050;
+int guests[max_n];
 
+int binarySearch(int A[], int l, int r, int key) {
+  while(l<=r) {
+    int mid = (r+l)/2;
+    if(A[mid]<=key) l = mid+1;
+	else r = mid-1;
+  }
+  return r+1;
+}
+
+int LICS(int A[], int n) {
+  int temp[n];
+  for(int i=0;i<n; i++) temp[i] = 0;
+  
+  int len=1;
+  temp[0] = A[0];
+  
+  for(int i = 0; i < n; i++) {
+    if(A[i] < temp[0]) temp[0] = A[i];
+    else if (A[i] > temp[len-1]) 
+      temp[len++] = A[i];
+    else temp[binarySearch(temp,-1,len-1,A[i])] = A[i];
+  }
+  return len;
+}
+
+int main() {
+  int t;
+  ios::sync_with_stdio(0);
+  cin>>t;
+  while(t--) {
+    int n;
+    cin>>n;
+   
+    for(int i = 0; i < n; i++) {
+      cin>>guests[i];
+      guests[i+n] = guests[i];
+    }
+    int res=INT_MIN;
+    for(int i = 0; i < n; i++) {
+      int a=LICS(guests+i, n);
+      res=max(res,a);
+    }
+    cout<<res<<endl;
+  }
+  return 0;
+}
