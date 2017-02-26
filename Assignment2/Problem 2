@@ -1,1 +1,84 @@
 
+#include<bits/stdc++.h>
+using namespace std;
+const int max_width=105;
+const int max_height=105;
+// arrays  to denote if (i,j) can be reached from left and up
+bool lef[max_width][max_height];  // 1 denotes path is bad
+bool up[max_width][max_height];
+
+// dp array
+long long dp[max_width][max_height];
+class AvoidRoads{
+	public:
+	void processString(string bad[],int n){
+		
+		if(n==0) return;
+		for(int i=0;i<n;i++){
+			string s=bad[i];
+			int sz=s.size();
+			int j=0,k=0,num=0;
+			int cor[4];
+			while(j<sz){
+				if(s[j]==' '){
+					cor[k++]=num;
+					num=0;
+				}
+				else num=num*10+s[j]-'0';
+				j++;
+			}
+			cor[k]=num;
+			int x1=cor[0],y1=cor[1],x2=cor[2],y2=cor[3];
+		//	cout<< x1<<" "<<y1<<"  "<<x2<<"  "<<y2<<endl;
+			if(x1==x2){
+				if(y1<y2) up[x1][y2]=1;
+				else up[x1][y1]=1;
+			}
+			else{  // y1==y2
+				if(x1<x2) lef[x2][y1]=1;
+				else lef[x1][y1]=1;
+			}
+		}
+	}
+	public:
+	long numWays(int width, int height, string bad[],int n){
+		
+		
+		for(int i=0;i<max_width;i++){
+			for(int j=0;j<max_height;j++){
+				lef[i][j]=0; 
+				up[i][j]=0;
+				dp[i][j]=0;
+			}
+		}
+		processString(bad,n);
+		
+		for(int i=0;i<=width;i++){
+			for(int j=0;j<=height;j++){
+				if(i==0 && j==0) dp[0][0]=1LL;
+				else if(i==0){ // only up can be traversed
+					if (up[i][j]==0) dp[i][j]+=dp[i][j-1];
+				}
+				else if(j==0){  // only left can be traversed
+					if (lef[i][j]==0) dp[i][j]+=dp[i-1][j];
+				}
+				else{
+					if (lef[i][j]==0) dp[i][j]+=dp[i-1][j];
+					if (up[i][j]==0) dp[i][j]+=dp[i][j-1];
+				}
+			}
+		}
+	  return dp[width][height];	
+	}
+		
+};
+int main(){
+	ios::sync_with_stdio(0);
+	int width=20;
+    int height=30;
+	string  bad[]={};
+	int n=sizeof(bad)/sizeof(bad[0]);
+	
+	AvoidRoads obj;
+	cout<<obj.numWays(width,height,bad,n)<<endl;
+}
