@@ -1,1 +1,138 @@
 
+#include<bits/stdc++.h>
+using namespace std;
+ 
+struct Point
+{
+        int x;
+        int y;
+};
+ 
+ int dist(Point a, Point b, Point c)
+{
+    int x1 = a.x - b.x;
+    int y1 = a.y - b.y;
+	int res = x1*(a.y - c.y) + y1*(a.x - c.x);
+	return (res>0 ? res: -res); 
+}
+
+int pointLocation(Point a, Point b, Point c)
+{
+        int r = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+        if (r > 0) return 1;
+        else if (r == 0) return 0;
+        else return -1;
+}
+
+void hullSet(Point A, Point B, vector<Point> vec, vector<Point>& ans){
+	
+	int pos = -1;
+	for(int i=0;i<ans.size();i++){
+		if(ans[i].x==B.x && ans[i].y==B.y){
+			pos = i;
+			break;
+		}
+	}
+	
+	if(vec.size()==0) return;
+	if(vec.size()==1){
+		Point p = vec[0];
+		vec.erase(vec.begin());
+		ans.insert(ans.begin()+pos,p);
+		return;
+	}
+	int d = INT_MIN;
+    int furthestPoint = -1;
+    for (int i = 0; i < vec.size(); i++)
+    {
+        Point p = vec[i];
+        int distance = dist(A, B, p);
+        if (distance > d)
+        {
+            d = distance;
+            furthestPoint = i;
+        }
+    }
+    Point P = vec[furthestPoint];
+    vec.erase(vec.begin()+furthestPoint);
+    ans.insert(ans.begin()+pos,P);
+    
+    // Determine who's to the left of AP
+    vector<Point> leftSetAP;
+	for (int i = 0; i < vec.size(); i++)
+    {
+        Point M = vec[i];
+        if (pointLocation(A, P, M) == 1)
+        {
+            leftSetAP.push_back(M);
+        }
+    }
+
+    // Determine who's to the left of PB
+    vector<Point> leftSetPB;
+	for (int i = 0; i < vec.size(); i++)
+    {
+        Point M = vec[i];
+        if (pointLocation(P, B, M) == 1)
+        {
+            leftSetPB.push_back(M);
+        }
+    }
+    
+    hullSet(A, P, leftSetAP, ans);
+    hullSet(P, B, leftSetPB, ans);
+        
+}
+void convexHull(Point pt[],int n){
+   
+   if(n<3) return ;
+   
+   vector<Point> ans;
+   
+    int minPoint = -1, maxPoint = -1;
+	int minX = INT_MAX;
+    int maxX = INT_MIN;
+    for (int i = 0; i < n; i++)
+    {
+        if (pt[i].x < minX)
+        {
+            minX = pt[i].x; minPoint = i;
+        }
+        if (pt[i].x > maxX)
+        {
+            maxX = pt[i].x; maxPoint = i;
+        }
+    }
+    
+    Point A = pt[minPoint];
+    Point B = pt[maxPoint]; 
+    ans.push_back(A); ans.push_back(B);
+	swap(pt[0],pt[minPoint]); // swapping min point to 0 index
+    swap(pt[1],pt[maxPoint]); // swapping min point to 1 index
+    
+    // process rest n-2 points
+    vector<Point> left, right;
+    for(int i=2;i<n;i++){
+      int d = pointLocation(A,B,pt[i]);
+      if(d==-1) left.push_back(pt[i]);
+      else if(d==1) right.push_back(pt[i]);
+	}
+	
+	hullSet(A,B,right,ans);
+	hullSet(B,A,left,ans);
+	
+	// printing convex hull
+    for(int i=0;i<ans.size();i++){
+    	cout<<"( "<<ans[i].x<<" , "<<ans[i].y<<" )"<<endl;
+	}
+}
+ // Driver program to test above functions
+int main()
+{
+    Point points[] = { { 0, 3 }, { 1, 1 }, { 2, 2 }, { 4, 4 }, { 0, 0 },
+            { 1, 2 }, { 3, 1 }, { 3, 3 } };
+    int n = sizeof(points) / sizeof(points[0]);
+    cout << "The points in the convex hull are: \n"<<endl;
+    convexHull(points, n);
+    return 0;
+}
